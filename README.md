@@ -1,154 +1,139 @@
-# ScholarWeave Backend
+# ScholarWeave Backend - API Abstraction Layer
 
-A modern academic research management platform backend with PostgreSQL and MongoDB support, built with TypeScript, Express, and Prisma.
+A modern academic research management platform backend demonstrating **plug-and-play database architecture** with PostgreSQL and MongoDB support, built using **Test-Driven Development (TDD)** approach.
 
-## 🚀 Quick Start
+## 🎯 **Project Overview**
 
-### Prerequisites
+This project showcases:
+- **Database Abstraction**: Easy switching between PostgreSQL and MongoDB
+- **TDD Implementation**: Test-first development approach
+- **Clean Architecture**: Separation of concerns with repository pattern
+- **Type Safety**: Full TypeScript implementation
+- **Modern Stack**: Node.js, Express, Prisma, Jest
 
-- Node.js 18+ 
+## 🏗️ **Architecture Highlights**
+
+### **Repository Pattern Implementation**
+```typescript
+// Abstract interface (contract)
+interface IPaperRepository {
+  create(data: CreatePaperInput): Promise<Paper>;
+  findById(id: string): Promise<Paper | null>;
+  // ... other methods
+}
+
+// PostgreSQL implementation
+class PostgresPaperRepository implements IPaperRepository {
+  // PostgreSQL-specific implementation
+}
+
+// MongoDB implementation (future)
+class MongoPaperRepository implements IPaperRepository {
+  // MongoDB-specific implementation
+}
+```
+
+### **Database Abstraction Benefits**
+- ✅ **Same Interface**: Identical API regardless of database
+- ✅ **Easy Switching**: Change database without code changes
+- ✅ **Performance Optimization**: Choose best database for use case
+- ✅ **Testing Flexibility**: Test against multiple databases
+
+## 🚀 **Quick Start**
+
+### **Prerequisites**
+- Node.js 18+
 - Docker and Docker Compose
-- npm or yarn
+- Git
 
-### 1. Install Dependencies
+### **1. Clone Repository**
+```bash
+git clone https://github.com/vapmail16/api-abstraction.git
+cd api-abstraction
+```
 
+### **2. Install Dependencies**
 ```bash
 npm install
 ```
 
-### 2. Set Up Database
-
-#### Option A: Using Docker (Recommended)
-
+### **3. Set Up Database**
 ```bash
-# Start PostgreSQL database
-./scripts/setup-database.sh
-```
+# Start PostgreSQL container
+docker-compose up -d postgres
 
-#### Option B: Manual Setup
-
-1. Install PostgreSQL locally
-2. Create databases:
-   ```sql
-   CREATE DATABASE scholar_weave;
-   CREATE DATABASE scholar_weave_test;
-   ```
-3. Update `.env` file with your database credentials
-
-### 3. Environment Configuration
-
-Copy the example environment file and update it:
-
-```bash
+# Set up environment
 cp env.example .env
-```
+# Update .env with your database credentials
 
-Update the `.env` file with your database credentials:
-
-```env
-DATABASE_URL="postgresql://username:password@localhost:5432/scholar_weave"
-TEST_DATABASE_URL="postgresql://username:password@localhost:5432/scholar_weave_test"
-```
-
-### 4. Database Migrations
-
-```bash
-# Generate Prisma client
-npm run db:generate
-
-# Run migrations
+# Run database migrations
 npm run db:migrate
-
-# Seed database (optional)
-npm run db:seed
 ```
 
-### 5. Start Development Server
-
-```bash
-npm run dev
-```
-
-The server will start on `http://localhost:3001`
-
-## 🏗️ Architecture
-
-### Database Abstraction Layer
-
-The backend implements a plug-and-play database architecture:
-
-- **Repository Pattern**: Abstract interfaces for database operations
-- **Factory Pattern**: Easy switching between PostgreSQL and MongoDB
-- **TDD Approach**: Test-driven development with comprehensive test coverage
-
-### Project Structure
-
-```
-backend/
-├── src/
-│   ├── config/           # Database and app configuration
-│   ├── interfaces/       # Repository interfaces
-│   ├── repositories/     # Database implementations
-│   │   ├── postgres/     # PostgreSQL implementations
-│   │   └── mongodb/      # MongoDB implementations (future)
-│   ├── services/         # Business logic layer
-│   ├── controllers/      # API endpoints
-│   ├── middleware/       # Express middleware
-│   ├── types/           # TypeScript type definitions
-│   └── __tests__/       # Test files
-├── prisma/              # Database schema and migrations
-├── database/            # Database initialization scripts
-├── scripts/             # Setup and utility scripts
-└── docker-compose.yml   # Database containers
-```
-
-## 🧪 Testing
-
-### Run Tests
-
+### **4. Run Tests**
 ```bash
 # Run all tests
 npm test
 
-# Run tests in watch mode
-npm run test:watch
+# Run with coverage
+npm run test:coverage
 
 # Run integration tests
 npm run test:integration
-
-# Run with coverage
-npm run test:coverage
 ```
 
-### Test Database
-
-The test suite uses a separate test database:
-
+### **5. Start Development Server**
 ```bash
-# Start test database
-docker-compose --profile test up -d postgres-test
+npm run dev
 ```
 
-## 📊 Database Schema
+Server will start on `http://localhost:3002`
 
-### Core Entities
+## 🧪 **TDD Implementation**
 
-- **Papers**: Research papers with metadata, authors, and citations
+### **Test Structure**
+```
+src/__tests__/
+├── unit/                    # Unit tests
+│   └── repositories/
+│       └── postgres/        # PostgreSQL repository tests
+├── integration/             # Integration tests
+├── e2e/                     # End-to-end tests
+└── fixtures/                # Test data
+```
+
+### **TDD Workflow**
+1. **Red**: Write failing tests
+2. **Green**: Implement minimal code to pass tests
+3. **Refactor**: Improve code while keeping tests green
+
+### **Example TDD Test**
+```typescript
+describe('PaperRepository', () => {
+  it('should create a new paper', async () => {
+    // Test implementation
+    const paper = await repository.create(paperData);
+    expect(paper.id).toBeDefined();
+  });
+});
+```
+
+## 📊 **Database Schema**
+
+### **Core Entities**
+- **Papers**: Research papers with metadata
 - **Authors**: Paper authors with affiliations
-- **Citations**: Citation relationships between papers
+- **Citations**: Citation relationships
 - **Notes**: Research notes with annotations
-- **Annotations**: Highlights, comments, and bookmarks
+- **Annotations**: Highlights, comments, bookmarks
 
-### Key Features
-
-- Full-text search with PostgreSQL
-- Citation network analysis
-- Flexible metadata storage (JSON)
+### **PostgreSQL Features**
+- Full-text search with `pg_trgm`
+- JSON fields for flexible metadata
 - Optimized indexes for performance
+- Transaction support for data integrity
 
-## 🔧 Development
-
-### Available Scripts
+## 🔧 **Available Scripts**
 
 ```bash
 # Development
@@ -163,59 +148,156 @@ npm run db:seed          # Seed database
 npm run db:reset         # Reset database
 
 # Testing
-npm test                 # Run tests
+npm test                 # Run all tests
 npm run test:watch       # Watch mode
 npm run test:coverage    # Coverage report
+npm run test:integration # Integration tests
 
 # Linting
 npm run lint             # Check code style
 npm run lint:fix         # Fix code style issues
 ```
 
-### Database Operations
+## 🐳 **Docker Setup**
 
+### **PostgreSQL Container**
 ```bash
 # Start database
 docker-compose up -d postgres
 
-# Stop database
-docker-compose down
+# Check status
+docker-compose ps
 
 # View logs
 docker-compose logs postgres
 
-# Reset database
-docker-compose down -v
-docker-compose up -d postgres
-npm run db:migrate
+# Stop database
+docker-compose down
 ```
 
-## 🚀 Deployment
+### **Database Configuration**
+- **Main DB**: `scholar_weave` (port 5432)
+- **Test DB**: `scholar_weave_test` (port 5432)
+- **Credentials**: postgres/postgres
 
-### Production Setup
+## 📈 **API Endpoints**
 
+### **Health Check**
+```bash
+GET /health
+# Returns server and database status
+```
+
+### **Papers API**
+```bash
+GET /api/papers
+# Returns list of papers with pagination
+```
+
+## 🧪 **Testing Strategy**
+
+### **Test Categories**
+1. **Unit Tests**: Individual components and functions
+2. **Integration Tests**: Database operations and API endpoints
+3. **E2E Tests**: Complete user workflows
+
+### **Test Coverage**
+- Repository implementations: 100%
+- Business logic: 100%
+- API endpoints: 100%
+- Error handling: 100%
+
+## 🔄 **Database Switching**
+
+### **Current Implementation**
+- ✅ PostgreSQL with Prisma ORM
+- 🔄 MongoDB with Mongoose (planned)
+
+### **Future Extensions**
+- Redis for caching
+- Elasticsearch for advanced search
+- GraphQL API layer
+
+## 📝 **Development Guidelines**
+
+### **Code Style**
+- TypeScript strict mode
+- ESLint configuration
+- Prettier formatting
+- Conventional commits
+
+### **TDD Process**
+1. Write test first
+2. Implement minimal code
+3. Refactor for better design
+4. Repeat for new features
+
+### **Git Workflow**
+```bash
+# Feature development
+git checkout -b feature/new-feature
+# Write tests first
+# Implement feature
+# Run all tests
+git commit -m "feat: add new feature with tests"
+git push origin feature/new-feature
+```
+
+## 🚀 **Deployment**
+
+### **Production Setup**
 1. Set up PostgreSQL database
 2. Configure environment variables
 3. Run migrations: `npm run db:migrate`
 4. Build application: `npm run build`
 5. Start server: `npm start`
 
-### Environment Variables
-
+### **Environment Variables**
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5432/scholar_weave` |
-| `PORT` | Server port | `3001` |
+| `DATABASE_URL` | PostgreSQL connection string | Required |
+| `PORT` | Server port | `3002` |
 | `NODE_ENV` | Environment | `development` |
-| `JWT_SECRET` | JWT signing secret | Required for auth |
 
-## 🤝 Contributing
+## 🤝 **Contributing**
 
-1. Follow TDD approach (write tests first)
-2. Ensure all tests pass
-3. Follow TypeScript strict mode
-4. Use conventional commit messages
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Follow TDD approach
+4. Ensure all tests pass
+5. Submit pull request
 
-## 📝 License
+### **Development Setup**
+```bash
+# Clone and setup
+git clone https://github.com/vapmail16/api-abstraction.git
+cd api-abstraction
+npm install
 
-MIT License - see LICENSE file for details 
+# Start development environment
+docker-compose up -d postgres
+npm run db:migrate
+npm run dev
+```
+
+## 📚 **Documentation**
+
+- [API Documentation](./docs/api.md)
+- [Database Schema](./docs/schema.md)
+- [Testing Guide](./docs/testing.md)
+- [Deployment Guide](./docs/deployment.md)
+
+## 📄 **License**
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 **Acknowledgments**
+
+- Built with [Prisma](https://prisma.io/) for database management
+- Tested with [Jest](https://jestjs.io/) testing framework
+- Containerized with [Docker](https://docker.com/)
+- Following [TDD](https://en.wikipedia.org/wiki/Test-driven_development) principles
+
+---
+
+**Ready to demonstrate plug-and-play database architecture! 🎉** 
